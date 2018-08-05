@@ -1,0 +1,10 @@
+﻿<ExtensionModel>
+	<Runtime>
+		<Import assembly="MonoDevelop.GruntTaskRunner.dll" />
+		<Import file="GruntScript/GruntTaskList.js" />
+	</Runtime>
+
+	<Extension path="/MonoDevelop/Ide/Composition">
+		<Assembly file="MonoDevelop.GruntTaskRunner.dll" />
+	</Extension>
+</ExtensionModel>
