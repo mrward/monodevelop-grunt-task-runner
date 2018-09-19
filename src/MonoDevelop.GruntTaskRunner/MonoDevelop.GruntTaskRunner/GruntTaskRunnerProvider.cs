@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -40,9 +41,19 @@ namespace MonoDevelop.GruntTaskRunner
 		public async Task<ITaskRunnerConfig> ParseConfig (ITaskRunnerCommandContext context, string configPath)
 		{
 			return await Task.Run (async () => {
-				ITaskRunnerNode hierarchy = await LoadHierarchy (configPath);
+				ITaskRunnerNode hierarchy = await TryLoadHierarchy (configPath);
 				return new GruntTaskRunnerConfig (hierarchy);
 			});
+		}
+
+		async Task<ITaskRunnerNode> TryLoadHierarchy (string configPath)
+		{
+			try {
+				return await LoadHierarchy (configPath);
+			} catch (Exception ex) {
+				LogError (configPath, ex);
+				return CreateErrorTaskRunnerNode (ex);
+			}
 		}
 
 		async Task<ITaskRunnerNode> LoadHierarchy (string configPath)
@@ -60,6 +71,25 @@ namespace MonoDevelop.GruntTaskRunner
 					Command = new TaskRunnerCommand (workingDirectory, "grunt", task.Name + " --no-color")
 				});
 			}
+
+			return root;
+		}
+
+		static void LogError (string configPath, Exception ex)
+		{
+			LoggingService.LogError ("Load grunt tasks failed. ", ex);
+
+			string logMessage = GettextCatalog.GetString ("Failed to load {0}{1}{2}", configPath, Environment.NewLine, ex.Message);
+			TaskRunnerLogger.WriteLine (logMessage);
+		}
+
+		ITaskRunnerNode CreateErrorTaskRunnerNode (Exception ex)
+		{
+			var root = new TaskRunnerErrorNode ("Grunt Task Runner");
+
+			string message = GettextCatalog.GetString ("Failed to load. See Task Runner Explorer Output for more details.");
+			var tasksNode = new TaskRunnerErrorNode (message);
+			root.Children.Add (tasksNode);
 
 			return root;
 		}
