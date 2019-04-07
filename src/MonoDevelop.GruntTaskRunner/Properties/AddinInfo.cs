@@ -35,6 +35,6 @@ using Mono.Addins;
 [assembly: AddinName ("Grunt Task Runner")]
 [assembly: AddinDescription ("Adds a Task Runner for Grunt.")]
 
-[assembly: AddinDependency ("Core", "7.4")]
-[assembly: AddinDependency ("Ide", "7.4")]
+[assembly: AddinDependency ("Core", "8.0")]
+[assembly: AddinDependency ("Ide", "8.0")]
 [assembly: AddinDependency ("TaskRunner", "0.1")]
